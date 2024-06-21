@@ -1,0 +1,15 @@
+{% extends 'base.html' %} {% block body %}
+<h1>Your Files</h1>
+<ul>
+  {% for file in files %}
+  <li>
+    {{file.filename}} <br />
+    <a href="{{url_for('download_file', filename=file.filename)}}" download
+      >Download</a
+    >
+  </li>
+  {% else %}
+  <li>No files found</li>
+  {% endfor %}
+</ul>
+{% endblock body %}

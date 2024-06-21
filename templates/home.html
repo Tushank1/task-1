@@ -1,0 +1,26 @@
+{% extends 'base.html' %} {% block body %}
+<div class="container">
+  <button
+    type="button"
+    class="btn btn-primary btn-lg"
+    onclick="redirectToLogin()"
+  >
+    Operational User
+  </button>
+  <button
+    type="button"
+    class="btn btn-secondary btn-lg"
+    onclick="redirectToClient()"
+  >
+    Client User
+  </button>
+</div>
+<script>
+  function redirectToLogin() {
+    window.location.href = "/login";
+  }
+  function redirectToClient() {
+    window.location.href = "/clientLogin";
+  }
+</script>
+{% endblock body %}
