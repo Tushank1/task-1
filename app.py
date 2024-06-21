@@ -115,7 +115,7 @@ def signUp():
         msg = Message("Verify your Email", recipients=[user.email])
         msg.body = f"Please click this link to verify your email: http://localhost:5000/verify/{token}"
         mail.send(msg)
-        return redirect(url_for("login"))  # Redirect to the login page after successful signup
+        return redirect(url_for("clientLogin"))  # Redirect to the login page after successful signup
     else:
         return render_template("signUp.html")
 
@@ -149,7 +149,7 @@ def clientLogin():
 def innerHomePage():
     uploaded_name = "Tushank"
     user_files = File.query.filter_by(uploaded_by=uploaded_name).all()
-    print([f.filename for f in user_files])  # Debugging line to print filenames
+    # print([f.filename for f in user_files])  # Debugging line to print filenames
     return render_template("innerHomePage.html", files=user_files)
 
 @app.route("/download_file/<filename>")
