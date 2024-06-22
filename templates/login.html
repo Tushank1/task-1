@@ -1,13 +1,10 @@
 {% extends 'base.html' %} {% block body %}
 <div class="container">
   <h1 class="mt-5">Operation User Login</h1>
-  {% with messages = get_flashed_messages() %} {% if messages %}
-  <ul class="flashes">
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %} {% endwith %}
+  {% with messages = get_flashed_messages() %} {% if messages %} {% for message
+  in messages %}
+  <div class="alert alert-primary" role="alert">{{ message }}</div>
+  {% endfor %} {% endif %} {% endwith %}
   <form class="mt-3" method="post">
     <div class="mb-3">
       <label for="username" class="form-label">Username</label>

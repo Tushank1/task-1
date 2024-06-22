@@ -12,4 +12,16 @@
   <li>No files found</li>
   {% endfor %}
 </ul>
+<button
+  type="button"
+  class="btn btn-secondary btn-lg"
+  onclick="redirectToHome()"
+>
+  Logout
+</button>
+<script>
+  function redirectToHome() {
+    window.location.href = "/";
+  }
+</script>
 {% endblock body %}

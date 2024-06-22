@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 import secrets
+from itsdangerous import URLSafeTimedSerializer
 
 db = SQLAlchemy()
 app = Flask(__name__)
@@ -14,12 +15,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.secret_key = 'task'
 
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'payey11431@egela.com'
-app.config['MAIL_PASSWORD'] = '123456'
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_SERVER'] = 'live.smtp.mailtrap.io'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USERNAME'] = 'api'
+app.config['MAIL_PASSWORD'] = '2f160cd8b545491ab9ed180e1be17723'
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+s = URLSafeTimedSerializer(secret_key='task')
 
 mail = Mail(app)
 
@@ -36,6 +38,8 @@ class User(db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     verified = db.Column(db.Boolean, default=False)
+    verified = db.Column(db.Boolean, default=False)
+    verification_token = db.Column(db.String(120), nullable=True)
     
 db.init_app(app)
 
@@ -102,28 +106,51 @@ def upload_file():
 @app.route("/sign", methods=["GET", "POST"])
 def signUp():
     if request.method == "POST":
+        email = request.form.get("email")
         existing_user = User.query.filter_by(username=request.form["username"]).first()
         if existing_user:
             flash("Username already taken.")
             return redirect(url_for("signUp"))  # Redirect back to the sign-up page
         
-        token = secrets.token_hex(16)
-        user = User(username=request.form["username"], password_hash=generate_password_hash(request.form["password"]), email=request.form["email"])
+        # Generate a secure token
+        token = s.dumps(email, salt='email-confirm-key')
+        
+        # Create a new user with the token
+        user = User(username=request.form["username"], password_hash=generate_password_hash(request.form["password"]), email=request.form["email"], verification_token=token)
         db.session.add(user)
         db.session.commit()
         
-        msg = Message("Verify your Email", recipients=[user.email])
-        msg.body = f"Please click this link to verify your email: http://localhost:5000/verify/{token}"
-        mail.send(msg)
+        # Construct the verification link
+        verification_link = url_for('verify_email', token=token, _external=True)
+        
+        # Prepare the email
+        msg = Message("Verify your Email", recipients=[email], sender="mailtrap@demomailtrap.com")
+        msg.body = f"Please click this link to verify your email: {verification_link}"
+        
+        # Send the email
+        try:
+            mail.send(msg)
+            flash("Verification email sent Please check your inbox.")
+        except Exception as e:
+            flash(f"Failed to send verification email: {str(e)}")
+            return redirect(url_for("signUp"))
+        
         return redirect(url_for("clientLogin"))  # Redirect to the login page after successful signup
     else:
         return render_template("signUp.html")
 
 @app.route("/verify/<token>")
 def verify_email(token):
-    user = User.query.filter_by(email=token).first()
-    if user:
+    try:
+        # Attempt to load the token and get the email
+        email = s.loads(token, salt='email-confirm-key', max_age=86400)  # Set max_age to expire the token after a certain time
+    except:
+        return "Verification failed", 400
+    
+    user = User.query.filter_by(email=email).first()
+    if user and not user.verified:
         user.verified = True
+        user.verification_token = None  # Optionally clear the token after verification
         db.session.commit()
         return "Your email has been verified"
     else:
