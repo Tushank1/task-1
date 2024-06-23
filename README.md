@@ -1,13 +1,12 @@
-In this Project, I am using Python , flask , and sqlite .
-At the home page , I was made a 2 buttons . First for Operational user and Second for Client user.
-I am using Sqlalchemy as a ORM , making 2 databse models:-
-First, for File in this we will store (filename,file data in Binary format, uploaded by, uploaded at). 
-Second, for User we will store (username,password in a hash format, email, verified).
+In this Project, I am using Python , flask , and sqlite . On the home page , I have created 2 buttons :- One for Operational user and other for for Client user.
+I am using Sqlalchemy as a ORM and making 2 database models:-
+The first is for File, where I store (filename,file data in Binary format, uploaded by, uploaded at). 
+The second is for User, where I store (username,password in a hash format, email, verified status, verification token).
 
-Now, we will talk about Operational user functionality :-
-When I click on the Operational user button , it will render to a login page.
+Operational user functionality :-
+When the Operational user button clicked, it will redirect me to a login page.
+Where I have a single uploader that will upload a file in the database . So, I programmatically add a single user in the database with the username of "Tushank".
 
-Where I have a single uploader that will upload a file in the database . So, I am programmatically add a single user in the database with the username of Tushank.
 Steps for single user :-
 I have made a varibale name hashed_password . In this , I am store my id password with the help of import generated_password_hash . So, it will store in a hash format with the help of encryption algorithm.
 Then, made a another varibale called operational_user . Where I pass my all details in the User model table in the database and pass all my methods with the values.
@@ -32,15 +31,18 @@ Fourth, add all the in the File table in the database and after successfully add
 
 Now, we will talk to Client user functionality :-
 I will use POST method in this , first make a varibale name as existing user I am running a query in the USER table that was present in the db and check that if the user already exist, if yes, then it will redirect to signUp page.
-Made another variable called token , it will generate a random text string in hexadecimal that contains a 16 number of random bytes and secrets allows users to easily add large numbers of secrets from an Excel or comma-separated values (CSV) file.
-Then, commit all the data related to user like username, password, email commit in the USER table.
+Make a token varibale that will be holding a generated token.
+Then, commit all the data related to user like username, password, email, and verfication token commit in the USER table.
 Then, we will send the verification mail message and link with the help of recipients.
+Make a verfication link for verify mail.
+final using error handling to . IF function works then it will send mail otherwise flash a Failed to send verification email.
 If funciton will work then it will automatically redirect to clientLogin page.
 else, render signUp page.
 
 Make another email verfication function:-
+Using error handling for email expires and set max_age about 24hrs after that token will be expires.
 make a varibale called user and run query on the USER table for filter token.
-if user got token then, user verified is true and we will add verification status in the db. 
+if user got token then, user verified is true and we will add verification status in the db and also none the verfication token. 
 else, return message that "verification failed"
 
 Make ClientLogin funciton :-
